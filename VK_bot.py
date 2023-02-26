@@ -13,7 +13,7 @@ def get_token():
 def get_servis_key():
     with open('token_vkinder_servis_key.txt', 'r') as f:
         return f.readline()
-
+data_user_for_find_ex = {}
 #token = input('Token: ')
 
 vk = vk_api.VkApi(token=get_servis_key())
@@ -81,7 +81,17 @@ def get_user_info(user_id):
 
     # print(data)
     # pprint(not_key)
+    # print(data_user_for_find,'данные для поиска')
     return data_user_for_find
+
+def change_sex_for_find(data_user_for_find):
+    print(data_user_for_find,'меняем sex для поиска')
+    if data_user_for_find['sex'] == 1:
+        data_user_for_find_ex['sex'] = 2
+    else:
+        data_user_for_find_ex['sex'] = 1
+    print(data_user_for_find_ex)
+
 
 def get_user_id_from_scren_name(scren_name):
     # scren_name = who_search()
@@ -94,7 +104,7 @@ def get_user_id_from_scren_name(scren_name):
 
 def who_search():
     request_user = ''
-    write_msg(user_id,'Для кого будем искать пару ( короткое имя)')
+    write_msg(user_id,'Для кого будем искать пару ( короткое имя)/ my - для себя')
     # session = vk_api.VkApi(get_servis_key())
     for event in longpoll.listen():
         if event.type == VkEventType.MESSAGE_NEW and event.to_me:
@@ -104,6 +114,10 @@ def who_search():
             request_user = request
             print('requests users - ',request_user)
             print('искать будем -',request)
+            if request_user == 'my':
+                request_user = event.user_id
+                print('my-user id --',request_user)
+                return request_user
             if type(request_user) == int:
                 return print(request_user,'-----requsts user')
             print(request_user,'++++++++++')
@@ -117,7 +131,18 @@ def get_user_foto(user_id):
         'extended': 1,
         'photo_sizes': 1})
     print(response)
-
+def users_search(data_user_for_find_ex):
+    print(data_user_for_find_ex,'    поиск   ')
+    resp = vk.method('users.search',{
+        'age_from' : data_user_for_find_ex['bdate'] - 3,
+        'age_to' : data_user_for_find_ex['bdate'] + 3,
+        'sex': data_user_for_find_ex['sex'],
+        'city': data_user_for_find_ex['city'],
+        'status': 6,
+        'count': 1000,
+        'v': 5.131
+    }).json
+    print(resp)
 
 def write_msg(user_id, message):
     vk.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
@@ -133,11 +158,14 @@ for event in longpoll.listen():
         if event.to_me:
             request = event.text
 
-            if request == "привет":
+            if request == "hello":
                 write_msg(event.user_id, f"Хай, {event.user_id}")
-                get_user_id_from_scren_name(who_search())
-                get_user_info(user_id)# уточняем, получаем информацию о пользователе
-                get_user_id_from_scren_name(who_search())
+                # get_user_id_from_scren_name(who_search())# получаем user id  возвращает user id
+                data_user_for_find_ex = get_user_info(get_user_id_from_scren_name(who_search()))# уточняем, получаем информацию о пользователе
+                change_sex_for_find(data_user_for_find_ex) # меняем пол
+                users_search(data_user_for_find_ex)
+
+
 
                 # user_search(user_id)
                 # get_user_foto(user_id)
