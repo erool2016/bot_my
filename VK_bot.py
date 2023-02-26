@@ -17,6 +17,7 @@ data_user_for_find_ex = {}
 #token = input('Token: ')
 
 vk = vk_api.VkApi(token=get_servis_key())
+vk2 = vk_api.VkApi(token=get_token())
 longpoll = VkLongPoll(vk)
 
 #part 2 , 'last_name': 'Демина'
@@ -134,7 +135,7 @@ def get_user_foto(user_id):
 def users_search(data_user_for_find_ex):
     print(data_user_for_find_ex,'    поиск   ')
     n = data_user_for_find_ex['bdate'].split('.')
-    resp = vk.method('users.search',{
+    resp = vk2.method('users.search',{
         'age_from' : int(n[2]) - 3,
         'age_to' : int(n[2]) + 3,
         'sex': data_user_for_find_ex['sex'],
@@ -142,8 +143,8 @@ def users_search(data_user_for_find_ex):
         'status': 6,
         'count': 1000,
         'v': 5.131
-    }).json
-    print(resp)
+    })
+    pprint(resp)
 
 def write_msg(user_id, message):
     vk.method('messages.send', {'user_id': user_id, 'message': message,  'random_id': randrange(10 ** 7),})
