@@ -133,9 +133,10 @@ def get_user_foto(user_id):
     print(response)
 def users_search(data_user_for_find_ex):
     print(data_user_for_find_ex,'    поиск   ')
+    n = data_user_for_find_ex['bdate'].split('.')
     resp = vk.method('users.search',{
-        'age_from' : data_user_for_find_ex['bdate'] - 3,
-        'age_to' : data_user_for_find_ex['bdate'] + 3,
+        'age_from' : int(n[2]) - 3,
+        'age_to' : int(n[2]) + 3,
         'sex': data_user_for_find_ex['sex'],
         'city': data_user_for_find_ex['city'],
         'status': 6,
